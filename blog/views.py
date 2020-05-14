@@ -61,3 +61,23 @@ def creaPostView(request):
         form = BlogPostModelForm()
     context = {"form": form}   #contesto dei parametri da passare al render
     return render(request, "blog/crea_post.html", context)  #passo il form alla pagina per il render
+
+# Creazione del commento
+@login_required(login_url='/accounts/login/')
+def creaCommentView(request, pk):
+    post = get_object_or_404(BlogPostModelForm, pk=pk)
+    if request.method == "POST":
+        form = BlogCommentModelForm(request.POST)  # ottengo il form dalla richiesta
+        if form.is_valid():  # validazione del form
+            print("Il Form è Valido!")
+            new_comment = form.save(commit=False)  # creo il post ma non salvo
+            new_comment.post = post
+            new_comment.autore = request.user
+            print("new_comment: ", new_comment)
+            new_comment.save()
+            url_discussione = reverse("risposte_post", kwargs={"pk": pk})
+            return HttpResponseRedirect(url_discussione)
+    else:  # se la chiamata non è POST vuol dire che è la prima chiamata GET, quindi mostro il form vuoto
+        form = BlogCommentModelForm()
+    context = {"form": form}  # contesto dei parametri da passare al render
+    return render(request, "blog/crea_comment.html", context)  # passo il form alla pagina per il render
