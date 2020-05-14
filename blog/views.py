@@ -1,13 +1,12 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from .forms import BlogPostModelForm
-from .models import BlogPostModel
-
+from .forms import BlogPostModelForm, BlogCommentModelForm
+from .models import BlogPostModel, BlogCommentModel
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.contrib.auth.decorators import login_required
-
+from django.urls import reverse
 def index(request): 
     command_list = ['crea-post','lista-post']
     context = {
