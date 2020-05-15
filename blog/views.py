@@ -1,8 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from .forms import BlogPostModelForm
-from .models import BlogPostModel
-
+from .forms import BlogPostModelForm, BlogCommentModelForm
+from .models import BlogPostModel, BlogCommentModel
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.shortcuts import get_list_or_404, get_object_or_404
@@ -18,16 +17,34 @@ def index(request):
 class listaPostView(ListView):
     model = BlogPostModel #modello dei dati da utilizzare 
     template_name = "blog/lista_post.html"  #pagina per mostrare i dati
-    
-    #recupera di dati da passare alla pagina per il render
-    #def get_context_data(self, **kwargs):
-    #    context = super().get_context_data(**kwargs)
-    #    context["posts"] = BlogPostModel.objects.all()
-    #    return context
 
-class PostDetailView(DetailView):
-    model = BlogPostModel #modello dei dati da utilizzare 
-    template_name = "blog/post_detail.html" #pagina per mostrare i dati
+def PostDetailView2(request, pk):
+    post = get_object_or_404(BlogPostModel, id=pk)
+    # Lista di commenti attivi per questo post
+    comments = post.comments.filter(attivo=True)
+    new_comment = None
+    if request.method == 'POST':
+        # il commento è stato inviato
+        comment_form = BlogCommentModelForm(data=request.POST)
+        if comment_form.is_valid():
+            # creo l'oggetto commento ma non lo salvo ancora nel db
+            new_comment = comment_form.save(commit=False)
+            # metto in relazione il commento al post a cui si riferisce
+            new_comment.post = post
+            # metto in relazione il commento al suo autore
+            new_comment.autore = request.user
+            # Salvo il commento nel database
+            new_comment.save()
+    else:
+        # preparo il form vuoto in cui scrivere il commento
+        comment_form = BlogCommentModelForm()
+
+    context = {'post': post,
+               'comments': comments,
+               'new_comment': new_comment,
+               'comment_form': comment_form
+               }
+    return render(request, 'blog/post_detail.html', context)
 
 #Modifica del post
 def modificaPostView(request, pk=None):
