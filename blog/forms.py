@@ -7,7 +7,8 @@ class BlogPostModelForm(forms.ModelForm):
         #fields = "__all__"
         fields = ["titolo","contenuto", "bozza"]
 
-class BlogCommentModelForm(forms.ModelForm):
-    class Meta:
-        model = BlogCommentModel
-        fields = ['contenuto']
+# class BlogCommentModelForm(forms.ModelForm):
+#     class Meta:
+#         model = BlogCommentModel
+#         fields = ['contenuto']
+
